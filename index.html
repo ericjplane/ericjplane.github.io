@@ -7,11 +7,177 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.min.js"></script>
     <title>Scatter Plot</title>
+    <style>
+      body {
+        margin: 0px;
+      }
+      .tick text, .legendCells text {
+        fill: #111111;
+        font-size: 10pt;
+        font-family: 'Open Sans', sans-serif;
+      }
+      .axis-label, .legend-label {
+        fill: #AAAAAA;
+        font-size: 10pt;
+        font-family: 'Open Sans', sans-serif;
+      }
+      .subtitle {
+        font-size: 40pt;
+      	font-family: 'Open Sans', sans-serif;
+      	alignment-baseline: middle;
+      	fill: #001f3f;
+    }
+    	circle:hover {
+      	fill: #F012BE;
+    }
+      div.tooltip {	
+    		position: absolute;			
+    		text-align: center;			
+    		width: 150px;					
+    		height: 30px;
+      	vertical-align: middle;
+      	line-height: 30px;
+				font-family:'Open Sans', sans-serif;
+    		background: #FFDC00;	
+    		border: 0px;		
+    		border-radius: 8px;			
+    		pointer-events: none;			
+		}
+      
+    </style>
   </head>
   <body>
     <script>
+      const parseTime = d3.timeParse("%Y");
+      const xValue = d => parseTime(d.Year);
+      const xLabel = 'Year';
+      const yValue = d => d.Counts;
+      const yLabel = 'Bomb Counts';
+      const colorValue = d => d.Country;
+      const colorLabel = 'Countries';
+      const margin = { left: 120, right: 120, top: 20, bottom: 120 };
+
+      const svg = d3.select("body").append("svg")
+        .attr("width", 1000)
+        .attr("height", 500);
+      
+      const width = svg.attr('width');
+      const height = svg.attr('height');
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      const g = svg.append('g')
+          .attr('transform', `translate(${margin.left},${margin.top+50})`);
+      const xAxisG = g.append('g')
+          .attr('transform', `translate(0, ${innerHeight})`);
+      const yAxisG = g.append('g');
+      const colorLegendG = g.append('g')
+          .attr('transform', `translate(${innerWidth - 100}, 50)`);
+
+      var temp = d3.select('body').append('div')	
+    		.attr('class', 'tooltip')				
+    		.style('opacity', 0);
+      
+      
+      g.append('text')
+        .attr('class', 'subtitle')
+        .attr('x', 0)
+        .attr('y', margin.top-50)
+    		.style('font-weight', 'bold')
+        .text('Nuclear Bombs Test History');
+      
+      
+      xAxisG.append('text')
+          .attr('class', 'axis-label')
+          .attr('x', innerWidth / 2)
+          .attr('y', 50)
+          .text(xLabel);
+
+      yAxisG.append('text')
+          .attr('class', 'axis-label')
+          .attr('x', -innerHeight / 2)
+          .attr('y', -60)
+          .attr('transform', `rotate(-90)`)
+          .style('text-anchor', 'middle')
+          .text(yLabel);
+
+      colorLegendG.append('text')
+          .attr('class', 'legend-label')
+          .attr('x', -30)
+          .attr('y', -20)
+          .text(colorLabel);
+      
+      const xScale = d3.scaleTime();
+      const yScale = d3.scaleLinear();
+      const rScale = d3.scaleLinear();
+      const colorScale = d3.scaleOrdinal()
+        .range(d3.schemeCategory10);
+
+      const xAxis = d3.axisBottom()
+        .scale(xScale)
+      	.ticks(20)
+        .tickPadding(10)
+        .tickSize(5);
+
+      const yAxis = d3.axisLeft()
+        .scale(yScale)
+        .ticks(10)
+        .tickPadding(15)
+        .tickSize(5);
+      
+      const colorLegend = d3.legendColor()
+        .scale(colorScale)
+        .shape('circle');
+
+      
+      
       d3.csv('McCarthy.csv', data => {
+        xScale
+          .domain(d3.extent(data, xValue))
+          .range([0, innerWidth])
+          .nice();
+
+        yScale
+          .domain(d3.extent(data, yValue))
+          .range([innerHeight, 0])
+          .nice();
         
+        rScale
+          .domain(d3.extent(data, yValue))
+           .range([3, 15])
+          .nice();
+
+
+        g.selectAll('circle').data(data)
+          .enter().append('circle')
+            .attr('cx', d => xScale(xValue(d)))
+            .attr('cy', d => yScale(yValue(d)))
+            .attr('fill', d => colorScale(colorValue(d)))
+        		.attr('Country', d=>d.Country)
+          	.attr('fill-opacity', 0.6)
+            .attr('r', d => rScale(yValue(d)))
+        		.on("mouseover", function(d) {
+            temp.transition()		
+                .duration(200)		
+                .style("opacity", 1);		
+          	temp.html("Bomb count:"+d.Counts)	
+               .style("left", (d3.event.pageX - 60) + "px")		
+               .style("top", (d3.event.pageY + 20) + "px");	
+            })
+        		.on("mouseout", function(d) {		
+            	temp.transition()		
+              	 .duration(500)		
+               	.style("opacity", 0);	
+        			});
+        
+        	
+        
+        
+        xAxisG.call(xAxis);
+        yAxisG.call(yAxis);
+        colorLegendG.call(colorLegend)
+          .selectAll('.cell text')
+            .attr('dy', '0.1em');
       });
     </script>
   </body>
