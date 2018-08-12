@@ -131,7 +131,7 @@
 
       
       
-      d3.csv('McCarthy.csv', data => {
+      d3.csv('https://gist.githubusercontent.com/ericjplane/69a951cb93fa1809c827b1325aece43b/raw/7348fe3c5d2198ff0f47eb77c36017bf16edc928/McCarthy.csv', data => {
         xScale
           .domain(d3.extent(data, xValue))
           .range([0, innerWidth])
