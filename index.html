@@ -56,7 +56,6 @@
       const colorValue = d => d.Country;
       const colorLabel = 'Countries';
       const margin = { left: 120, right: 120, top: 20, bottom: 120 };
-
       const svg = d3.select("body").append("svg")
         .attr("width", 1000)
         .attr("height", 500);
@@ -65,7 +64,6 @@
       const height = svg.attr('height');
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
-
       const g = svg.append('g')
           .attr('transform', `translate(${margin.left},${margin.top+50})`);
       const xAxisG = g.append('g')
@@ -73,7 +71,6 @@
       const yAxisG = g.append('g');
       const colorLegendG = g.append('g')
           .attr('transform', `translate(${innerWidth - 100}, 50)`);
-
       var temp = d3.select('body').append('div')	
     		.attr('class', 'tooltip')				
     		.style('opacity', 0);
@@ -92,7 +89,6 @@
           .attr('x', innerWidth / 2)
           .attr('y', 50)
           .text(xLabel);
-
       yAxisG.append('text')
           .attr('class', 'axis-label')
           .attr('x', -innerHeight / 2)
@@ -100,7 +96,6 @@
           .attr('transform', `rotate(-90)`)
           .style('text-anchor', 'middle')
           .text(yLabel);
-
       colorLegendG.append('text')
           .attr('class', 'legend-label')
           .attr('x', -30)
@@ -112,13 +107,11 @@
       const rScale = d3.scaleLinear();
       const colorScale = d3.scaleOrdinal()
         .range(d3.schemeCategory10);
-
       const xAxis = d3.axisBottom()
         .scale(xScale)
       	.ticks(20)
         .tickPadding(10)
         .tickSize(5);
-
       const yAxis = d3.axisLeft()
         .scale(yScale)
         .ticks(10)
@@ -128,7 +121,6 @@
       const colorLegend = d3.legendColor()
         .scale(colorScale)
         .shape('circle');
-
       
       
       d3.csv('McCarthy.csv', data => {
@@ -136,7 +128,6 @@
           .domain(d3.extent(data, xValue))
           .range([0, innerWidth])
           .nice();
-
         yScale
           .domain(d3.extent(data, yValue))
           .range([innerHeight, 0])
@@ -146,8 +137,6 @@
           .domain(d3.extent(data, yValue))
            .range([3, 15])
           .nice();
-
-
         g.selectAll('circle').data(data)
           .enter().append('circle')
             .attr('cx', d => xScale(xValue(d)))
