@@ -123,7 +123,7 @@
         .shape('circle');
       
       
-      d3.csv('McCarthy.csv', data => {
+      d3.csv('nuclear.csv', data => {
         xScale
           .domain(d3.extent(data, xValue))
           .range([0, innerWidth])
