@@ -1,135 +1,184 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
 <html>
-<head>
-	<style>
-		.axis path,
-		.axis line 
-		{
-			fill: none;
-			stroke: black;
-			shape-rendering: crispEdges;
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.min.js"></script>
+    <title>Scatter Plot</title>
+    <style>
+      body {
+        margin: 0px;
+      }
+      .tick text, .legendCells text {
+        fill: #111111;
+        font-size: 10pt;
+        font-family: 'Open Sans', sans-serif;
+      }
+      .axis-label, .legend-label {
+        fill: #AAAAAA;
+        font-size: 10pt;
+        font-family: 'Open Sans', sans-serif;
+      }
+      .subtitle {
+        font-size: 40pt;
+      	font-family: 'Open Sans', sans-serif;
+      	alignment-baseline: middle;
+      	fill: #001f3f;
+    }
+    	circle:hover {
+      	fill: #F012BE;
+    }
+      div.tooltip {	
+    		position: absolute;			
+    		text-align: center;			
+    		width: 150px;					
+    		height: 30px;
+      	vertical-align: middle;
+      	line-height: 30px;
+				font-family:'Open Sans', sans-serif;
+    		background: #FFDC00;	
+    		border: 0px;		
+    		border-radius: 8px;			
+    		pointer-events: none;			
 		}
-			
-		.axis text 
-		{
-			font-family: sans-serif;
-			font-size: 11px;
-		}
-		
-		div.tooltip 
-		{   
-			position: absolute;           
-			text-align: center;           
-			width: 70px;                  
-			height: 14px;                 
-			padding: 2px;             
-			font: 12px sans-serif;        
-			background: lightsteelblue;   
-			border: 0px;      
-			border-radius: 8px;           
-			pointer-events: none;         
-		}
-	</style>
-</head>
-<body>
-<script src="http://d3js.org/d3.v3.min.js"> </script> 
-<script>
-	var max_time = 22
-	var margin = {top: 20, right: 20, bottom: 30, left: 40},
-	width = 960 - margin.left - margin.right,
-	height = 500 - margin.top - margin.bottom;
-	
-	//Create a svg element to store the graph in 
-	var svg = d3.select("body").append("svg")
-		.attr("width" , width + margin.left + margin.right)
-		.attr("height" , height + margin.top + margin.bottom)
-		.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
-	//Set up scales that we can use to draw the axes
-	var x = d3.scale.linear()
-				.domain([0,5000])
-				.range([0,width]);
-	var y = d3.scale.linear()
-				.domain([0,max_time + 1])
-				.range([height,0]);
-				
-	//Setting up the axes
-	var xAxis = d3.svg.axis()
-					.scale(x)
-					.orient("bottom")
-					.ticks(5);
-					
-	var yAxis = d3.svg.axis()
-					.scale(y)
-					.ticks(5)
-					.orient("left");
-					
-		
-	//Add the axis to our svg element
-	// x-axis
-	svg.append("g")
-		.attr("class", "x axis label")
-		.attr("transform", "translate(" + 0 + "," + height + ")")
-		.call(xAxis)
-		.append("text")
-		.text("number of rows")
-		.attr("x", width)
-		.attr("y", -6)
-		.style("text-anchor", "end");	
-	// y-axis
-	svg.append("g")
-		.attr("class", "y axis label")
-		.call(yAxis)
-		.append("text")
-		.text("time")
-		.attr("transform", "rotate(-90)")
-		.attr("y",6)
-		.attr("dy", ".71em") 
-		.style("text-anchor","end")					
-	
-	//For the mouseover bubbles
-	var tooltip = d3.select("body")
-					.append("div")
-					.attr("class","tooltip")
-					.attr("style","display:none")
+      
+    </style>
+  </head>
+  <body>
+    <script>
+      const parseTime = d3.timeParse("%Y");
+      const xValue = d => parseTime(d.Year);
+      const xLabel = 'Year';
+      const yValue = d => d.Counts;
+      const yLabel = 'Bomb Counts';
+      const colorValue = d => d.Country;
+      const colorLabel = 'Countries';
+      const margin = { left: 120, right: 120, top: 20, bottom: 120 };
 
-	var datas; 	
-	d3.csv("obs_timings.csv", type, 
-		function(data) 
-		{
-			datas = data; 
-			svg.selectAll("circle")
-			.data(datas)
-			.enter()
-			.append("circle")
-			.attr("cx", function(d) {return x(d.size); })
-			.attr("cy", function(d) {return y(d.time); })
-			.attr("r", 5)
-			.on("mouseover", function(d)
-			{
-				tooltip.transition()
-						.duration(100)
-						.style("opacity", .9);
-				tooltip.html("(" + d3.round(d.size) + "," + d3.round(d.time,2) + ")") //what to display on mouseover
-				.style("left", (d3.event.pageX + 5) + "px")
-				.style("top", (d3.event.pageY - 28) + "px")
-				.style("display", "block")
-			})
-			.on("mouseout", function(d) 
-			{
-				tooltip.transition()
-						.duration(500)
-						.style("opacity",0);
-			});		
-		});
+      const svg = d3.select("body").append("svg")
+        .attr("width", 1000)
+        .attr("height", 500);
+      
+      const width = svg.attr('width');
+      const height = svg.attr('height');
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
 
-function type(d) {
-	d.size = +d.size;
-	d.time  = d.time;
-	return d
-}		
-</script>
-</body>
+      const g = svg.append('g')
+          .attr('transform', `translate(${margin.left},${margin.top+50})`);
+      const xAxisG = g.append('g')
+          .attr('transform', `translate(0, ${innerHeight})`);
+      const yAxisG = g.append('g');
+      const colorLegendG = g.append('g')
+          .attr('transform', `translate(${innerWidth - 100}, 50)`);
+
+      var temp = d3.select('body').append('div')	
+    		.attr('class', 'tooltip')				
+    		.style('opacity', 0);
+      
+      
+      g.append('text')
+        .attr('class', 'subtitle')
+        .attr('x', 0)
+        .attr('y', margin.top-50)
+    		.style('font-weight', 'bold')
+        .text('Nuclear Bombs Test History');
+      
+      
+      xAxisG.append('text')
+          .attr('class', 'axis-label')
+          .attr('x', innerWidth / 2)
+          .attr('y', 50)
+          .text(xLabel);
+
+      yAxisG.append('text')
+          .attr('class', 'axis-label')
+          .attr('x', -innerHeight / 2)
+          .attr('y', -60)
+          .attr('transform', `rotate(-90)`)
+          .style('text-anchor', 'middle')
+          .text(yLabel);
+
+      colorLegendG.append('text')
+          .attr('class', 'legend-label')
+          .attr('x', -30)
+          .attr('y', -20)
+          .text(colorLabel);
+      
+      const xScale = d3.scaleTime();
+      const yScale = d3.scaleLinear();
+      const rScale = d3.scaleLinear();
+      const colorScale = d3.scaleOrdinal()
+        .range(d3.schemeCategory10);
+
+      const xAxis = d3.axisBottom()
+        .scale(xScale)
+      	.ticks(20)
+        .tickPadding(10)
+        .tickSize(5);
+
+      const yAxis = d3.axisLeft()
+        .scale(yScale)
+        .ticks(10)
+        .tickPadding(15)
+        .tickSize(5);
+      
+      const colorLegend = d3.legendColor()
+        .scale(colorScale)
+        .shape('circle');
+
+      
+      
+      d3.csv('McCarthy.csv', data => {
+        xScale
+          .domain(d3.extent(data, xValue))
+          .range([0, innerWidth])
+          .nice();
+
+        yScale
+          .domain(d3.extent(data, yValue))
+          .range([innerHeight, 0])
+          .nice();
+        
+        rScale
+          .domain(d3.extent(data, yValue))
+           .range([3, 15])
+          .nice();
+
+
+        g.selectAll('circle').data(data)
+          .enter().append('circle')
+            .attr('cx', d => xScale(xValue(d)))
+            .attr('cy', d => yScale(yValue(d)))
+            .attr('fill', d => colorScale(colorValue(d)))
+        		.attr('Country', d=>d.Country)
+          	.attr('fill-opacity', 0.6)
+            .attr('r', d => rScale(yValue(d)))
+        		.on("mouseover", function(d) {
+            temp.transition()		
+                .duration(200)		
+                .style("opacity", 1);		
+          	temp.html("Bomb count:"+d.Counts)	
+               .style("left", (d3.event.pageX - 60) + "px")		
+               .style("top", (d3.event.pageY + 20) + "px");	
+            })
+        		.on("mouseout", function(d) {		
+            	temp.transition()		
+              	 .duration(500)		
+               	.style("opacity", 0);	
+        			});
+        
+        	
+        
+        
+        xAxisG.call(xAxis);
+        yAxisG.call(yAxis);
+        colorLegendG.call(colorLegend)
+          .selectAll('.cell text')
+            .attr('dy', '0.1em');
+      });
+    </script>
+  </body>
 </html>
