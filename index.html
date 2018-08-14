@@ -58,7 +58,7 @@
       const margin = { left: 60, right: 120, top: 20, bottom: 120 };
 
       const svg = d3.select("body").append("svg")
-        .attr("width", 500)
+        .attr("width", 1000)
         .attr("height", 500);
       
       const width = svg.attr('width');
@@ -134,12 +134,12 @@
       d3.csv('https://gist.githubusercontent.com/ericjplane/69a951cb93fa1809c827b1325aece43b/raw/44c61e8dce275635c55bdd3ddd7f321aaa441905/McCarthy.csv', data => {
         xScale
           .domain(d3.extent(data, xValue))
-          .range([0, innerWidth])
+          .range([50, innerWidth])
           .nice();
 
         yScale
           .domain(d3.extent(data, yValue))
-          .range([innerHeight, 0])
+          .range([innerHeight, 50])
           .nice();
         
         rScale
