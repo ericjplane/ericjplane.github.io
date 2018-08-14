@@ -89,7 +89,7 @@
       
       xAxisG.append('text')
           .attr('class', 'axis-label')
-          .attr('x', innerWidth / 10)
+          .attr('x', innerWidth / 2)
           .attr('y', 50)
           .text(xLabel);
 
@@ -117,7 +117,7 @@
         .scale(xScale)
       	.ticks(10)
         .tickPadding(5)
-        .tickSize(2);
+        .tickSize(4);
 
       const yAxis = d3.axisLeft()
         .scale(yScale)
